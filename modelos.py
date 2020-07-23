@@ -201,9 +201,9 @@ def predictAD(tree, x, y, x_test):
 # Função responsável por treinar o SVM e escolher os melhores hiperparâmetros por meio de grid-search
 def fitSVM(x, y):
     print("[SVM] Selecionando hiperparâmetros...")
-    configSVM = [{'kernel': ['rbf'], 'C': 2 ** np.arange(-5.0, 16.0, 2), 'gamma': 2 ** np.arange(-15.0, 4.0, 2)},
-                 {'kernel':['poly'], 'C': 2 ** np.arange(-5.0, 16.0, 2),'degree': np.arange(2, 6)},
-                 {'kernel': ['linear'], 'C': 2 ** np.arange(-5.0, 16.0, 2)}]
+    configSVM = [{'kernel': ['rbf'], 'C': 2 ** np.arange(-5.0, 16.0, 4), 'gamma': 2 ** np.arange(-15.0, 4.0, 4)},
+                 {'kernel':['poly'], 'C': 2 ** np.arange(-5.0, 16.0, 4),'degree': np.arange(2, 6)},
+                 {'kernel': ['linear'], 'C': 2 ** np.arange(-5.0, 16.0, 4)}]
 
     model = GridSearchCV(SVC(), configSVM)
  
