@@ -21,25 +21,28 @@ warnings.filterwarnings("ignore")
 def train_testSplit(ids, data, rate_test):
     quantidadeIds = len(ids)
     quantidadeTeste = int(rate_test * quantidadeIds)
-    idsTreino = []
-    idsTeste = []
+    idsTreino, idsTeste = [], []
+    
     while(len(idsTeste)!=quantidadeTeste):
         idEscolhido = random.choice(ids)
         if(idEscolhido not in idsTeste):
             idsTeste.append(idEscolhido)
+            
     for i in range(0, quantidadeIds):
         if(ids[i] not in idsTeste):
             idsTreino.append(ids[i])
-    train = []
-    test = []
+            
+    train, test = [], []
     for idTreino in idsTreino:
         dataId = data.query('id == '+str(idTreino))
         for reg in dataId.index:
             train.append(dataId.loc[reg])
+            
     for idTeste in idsTeste:
         dataId = data.query('id == '+str(idTeste))
         for reg in dataId.index:
             test.append(dataId.loc[reg])
+            
     train = np.array(train)
     test = np.array(test)
     return train[:,1:-1], test[:,1:-1], train[:,-1], test[:,-1]
@@ -59,8 +62,7 @@ def fitRL(x, y, n_epochs, alpha, fatorReg):
     x = np.hstack((aux, x))
     
     for epochs in range (0, n_epochs):
-        suma = 0
-        sumErro = 0
+        suma, sumErro = 0, 0
         for i in range(0, x.shape[0]):
             sumErro = sumErro + (y[i]-sigmoide(x[i],wPrev))**2
             suma = suma +  (y[i]-sigmoide(x[i],wPrev))*np.transpose(x[i])
@@ -75,26 +77,25 @@ def fitRL(x, y, n_epochs, alpha, fatorReg):
 # Função responsável para predizer os dados
 def predictRL(w, x):
     print("[Regressão Logística] Testando modelo...")
-    yPredito = []
+
     aux = np.ones((x.shape[0], 1))
     x = np.hstack((aux, x))
-    for row in x:
-        if(sigmoide(row, w)>=0.5):
-            yPredito.append(1)
-        else:
-            yPredito.append(0)
+    
+    yPredito = [1 if(sigmoide(row, w)>=0.5) else 0 for row in x]
+
     return yPredito
 
 # Função responsável para "treinar" que gera os dados estatísticos necessários para o modelo de 
 # Análise de Discriminante Gaussiano
 def fitAGD(x, y):
     print("[Análise Discriminante Gaussiano] Treinando modelo...")
-    classes, ocorrencs = np.unique(y, return_counts=True)
+    classes, occurrences = np.unique(y, return_counts=True)
     numClasses = len(classes)
     n = len(y)
     numFeatures = x.shape[1]
     
-    probabilidadeClasses = dict(zip(classes, ocorrencs))
+    probabilidadeClasses = dict(zip(classes, occurrences))
+   
     for key in probabilidadeClasses:
         probabilidadeClasses[key] = probabilidadeClasses[key] / n
     
@@ -112,7 +113,7 @@ def fitAGD(x, y):
 
 # Função responsável para predizer a classe de um único registro
 def predict1AGD(model, row):
-    probabilits = np.zeros(model['numClasses'])
+    probabilities = np.zeros(model['numClasses'])
     for classe in model['classes']:
         classe = int(classe)
         fator1 = 1/((sqrt(np.linalg.det(model['covar'][:, :, classe])) * ((2*pi)**(model['numFeatures']/2)))+10**-6) 
@@ -120,8 +121,8 @@ def predict1AGD(model, row):
         inversa = np.linalg.inv(model['covar'][:, :, classe])
         difXMedia = row - model['media'][:, classe]
         z = (-0.5) * (np.transpose(difXMedia) @ inversa @ difXMedia)
-        probabilits[classe] = fator1 * np.exp(z)
-    return model['classes'][np.argmax(probabilits)]
+        probabilities[classe] = fator1 * np.exp(z)
+    return model['classes'][np.argmax(probabilities)]
     
 # Função utilizada para predizer as classes de um conjunto de registros
 def predictAGD(model, x_test):
@@ -139,9 +140,9 @@ def distance_manhattan(x1, x2):
 # Função responsável por predizer a classe de um único registro
 def predict1KNN(x, y, x_teste, k, function):
     classes = np.unique(y)
-    results = []
-    for i in range(0, x.shape[0]):
-        results.append([function(x[i], x_teste), y[i]])
+    
+    results = [[function(x[i], x_teste), y[i]] for i in range(0, x.shape[0])]
+
     results = sorted(results)
     dictClasses = {}
     for i in classes:
@@ -201,9 +202,9 @@ def predictAD(tree, x, y, x_test):
 # Função responsável por treinar o SVM e escolher os melhores hiperparâmetros por meio de grid-search
 def fitSVM(x, y):
     print("[SVM] Selecionando hiperparâmetros...")
-    configSVM = [{'kernel': ['rbf'], 'C': 2 ** np.arange(-5.0, 16.0, 4), 'gamma': 2 ** np.arange(-15.0, 4.0, 4)},
-                 {'kernel':['poly'], 'C': 2 ** np.arange(-5.0, 16.0, 4),'degree': np.arange(2, 6)},
-                 {'kernel': ['linear'], 'C': 2 ** np.arange(-5.0, 16.0, 4)}]
+    configSVM = [{'kernel': ['rbf'], 'C': 2 ** np.arange(-5.0, 16.0, 2), 'gamma': 2 ** np.arange(-15.0, 4.0, 2)},
+                 {'kernel':['poly'], 'C': 2 ** np.arange(-5.0, 16.0, 2),'degree': np.arange(2, 6)},
+                 {'kernel': ['linear'], 'C': 2 ** np.arange(-5.0, 16.0, 2)}]
 
     model = GridSearchCV(SVC(), configSVM)
  
