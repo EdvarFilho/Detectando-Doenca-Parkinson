@@ -275,7 +275,7 @@ def fitRF(x, y):
     print("[Random Forest] Treinando modelo...")
     clf.fit(x,y)
 
-    print("[RANDOM FOREST] Hiperparâmetros escolhidos para Radom Forest: ", clf.best_params_)
+    print("[Random Forest] Hiperparâmetros escolhidos para Radom Forest: ", clf.best_params_)
 
     return clf
 
