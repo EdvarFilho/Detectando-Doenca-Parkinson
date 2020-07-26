@@ -23,19 +23,13 @@ def train_testSplit(ids, dataPCA, dataModSULQ, rate_test):
     quantidadeIds = len(ids)
     quantidadeTeste = int(rate_test * quantidadeIds)
     idsTreino, idsTeste = [], []
-<<<<<<< HEAD
-=======
-    
->>>>>>> b03c31e52adb626f17c287e8fb8d984c548e67a9
     while(len(idsTeste)!=quantidadeTeste):
         idEscolhido = random.choice(ids)
         if(idEscolhido not in idsTeste):
             idsTeste.append(idEscolhido)
-            
     for i in range(0, quantidadeIds):
         if(ids[i] not in idsTeste):
             idsTreino.append(ids[i])
-<<<<<<< HEAD
     trainPCA, testPCA, trainModSULQ, testModSULQ = [], [], [], []
     for idTreino in idsTreino:
         dataIdPCA = dataPCA.query('id == '+str(idTreino))
@@ -58,23 +52,6 @@ def train_testSplit(ids, dataPCA, dataModSULQ, rate_test):
     trainTestPCA = trainPCA[:,1:-1], testPCA[:,1:-1], trainPCA[:,-1], testPCA[:,-1]
     trainTestModSULQ = trainModSULQ[:,1:-1], testModSULQ[:,1:-1], trainModSULQ[:,-1], testModSULQ[:,-1]
     return trainTestPCA, trainTestModSULQ
-=======
-            
-    train, test = [], []
-    for idTreino in idsTreino:
-        dataId = data.query('id == '+str(idTreino))
-        for reg in dataId.index:
-            train.append(dataId.loc[reg])
-            
-    for idTeste in idsTeste:
-        dataId = data.query('id == '+str(idTeste))
-        for reg in dataId.index:
-            test.append(dataId.loc[reg])
-            
-    train = np.array(train)
-    test = np.array(test)
-    return train[:,1:-1], test[:,1:-1], train[:,-1], test[:,-1]
->>>>>>> b03c31e52adb626f17c287e8fb8d984c548e67a9
 
 # Função que computa a função logística (sigmóide)
 def sigmoide(row, w):
@@ -147,39 +124,22 @@ def fitRL(x, y):
 # Função responsável para predizer os dados
 def predictRL(w, x):
     print("[Regressão Logística] Testando modelo...")
-<<<<<<< HEAD
     aux = np.ones((x.shape[0], 1))
     x = np.hstack((aux, x))
     yPredito = [1 if(sigmoide(row, w)>=0.5) else 0 for row in x]
-=======
-
-    aux = np.ones((x.shape[0], 1))
-    x = np.hstack((aux, x))
-    
-    yPredito = [1 if(sigmoide(row, w)>=0.5) else 0 for row in x]
-
->>>>>>> b03c31e52adb626f17c287e8fb8d984c548e67a9
     return yPredito
 
 # Função responsável para "treinar" que gera os dados estatísticos necessários para o modelo de 
 # Análise de Discriminante Gaussiano
 def fitAGD(x, y):
-<<<<<<< HEAD
     print("[Análise de Discriminante Gaussiano] Treinando modelo...")
-=======
-    print("[Análise Discriminante Gaussiano] Treinando modelo...")
->>>>>>> b03c31e52adb626f17c287e8fb8d984c548e67a9
     classes, occurrences = np.unique(y, return_counts=True)
     numClasses = len(classes)
     n = len(y)
     numFeatures = x.shape[1]
     
     probabilidadeClasses = dict(zip(classes, occurrences))
-<<<<<<< HEAD
 
-=======
-   
->>>>>>> b03c31e52adb626f17c287e8fb8d984c548e67a9
     for key in probabilidadeClasses:
         probabilidadeClasses[key] = probabilidadeClasses[key] / n
     
@@ -224,13 +184,7 @@ def distance_manhattan(x1, x2):
 # Função responsável por predizer a classe de um único registro
 def predict1KNN(x, y, x_teste, k, function):
     classes = np.unique(y)
-<<<<<<< HEAD
     results = [[function(x[i], x_teste), y[i]] for i in range(0, x.shape[0])]
-=======
-    
-    results = [[function(x[i], x_teste), y[i]] for i in range(0, x.shape[0])]
-
->>>>>>> b03c31e52adb626f17c287e8fb8d984c548e67a9
     results = sorted(results)
     dictClasses = {}
     for i in classes:
@@ -290,14 +244,8 @@ def predictAD(tree, x, y, x_test):
 # Função responsável por treinar o SVM e escolher os melhores hiperparâmetros por meio de grid-search
 def fitSVM(x, y):
     print("[SVM] Selecionando hiperparâmetros...")
-<<<<<<< HEAD
     configSVM = [{'kernel': ['rbf'], 'C': 2 ** np.array([-1.0, -2.0, -3.0, 0, 1, 2]), 'gamma': 2 ** np.array([-3.0, -2.0, -1.0])},
                  {'kernel':['poly'], 'C': 2 ** np.array([-1.0, -2.0, -3.0, 0, 1, 2]),'degree': np.array([3,4,5])}]
-=======
-    configSVM = [{'kernel': ['rbf'], 'C': 2 ** np.arange(-5.0, 16.0, 2), 'gamma': 2 ** np.arange(-15.0, 4.0, 2)},
-                 {'kernel':['poly'], 'C': 2 ** np.arange(-5.0, 16.0, 2),'degree': np.arange(2, 6)},
-                 {'kernel': ['linear'], 'C': 2 ** np.arange(-5.0, 16.0, 2)}]
->>>>>>> b03c31e52adb626f17c287e8fb8d984c548e67a9
 
     model = GridSearchCV(SVC(), configSVM)
  
