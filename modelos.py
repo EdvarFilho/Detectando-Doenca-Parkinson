@@ -126,8 +126,9 @@ def predictRL(w, x):
     print("[Regressão Logística] Testando modelo...")
     aux = np.ones((x.shape[0], 1))
     x = np.hstack((aux, x))
+    yPrev = [sigmoide(row, w) for row in x]
     yPredito = [1 if(sigmoide(row, w)>=0.5) else 0 for row in x]
-    return yPredito
+    return yPredito, yPrev
 
 # Função responsável para "treinar" que gera os dados estatísticos necessários para o modelo de 
 # Análise de Discriminante Gaussiano
@@ -166,13 +167,13 @@ def predict1AGD(model, row):
         difXMedia = row - model['media'][:, classe]
         z = (-0.5) * (np.transpose(difXMedia) @ inversa @ difXMedia)
         probabilities[classe] = fator1 * np.exp(z)
-    return model['classes'][np.argmax(probabilities)]
+    return model['classes'][np.argmax(probabilities)], probabilities[1]
     
 # Função utilizada para predizer as classes de um conjunto de registros
 def predictAGD(model, x_test):
     print("[Análise de Discriminante Gaussiano] Testando modelo...")
     yPredito = np.array([predict1AGD(model, row) for row in x_test])
-    return yPredito
+    return yPredito[:,0], yPredito[:,1]
 
 # Funções que realizam os cálculos de distância entre dois registros
 def distance_euclidian(x1, x2):
@@ -239,7 +240,7 @@ def fitAD(x, y):
 def predictAD(tree, x, y, x_test):
     print("[Árvore de Decisão] Testando modelo...")
     yPredito = tree.predict(x_test)
-    return yPredito
+    return yPredito, tree.predict_proba(x_test)[:,1]
 
 # Função responsável por treinar o SVM e escolher os melhores hiperparâmetros por meio de grid-search
 def fitSVM(x, y):
@@ -247,7 +248,7 @@ def fitSVM(x, y):
     configSVM = [{'kernel': ['rbf'], 'C': 2 ** np.array([-1.0, -2.0, -3.0, 0, 1, 2]), 'gamma': 2 ** np.array([-3.0, -2.0, -1.0])},
                  {'kernel':['poly'], 'C': 2 ** np.array([-1.0, -2.0, -3.0, 0, 1, 2]),'degree': np.array([3,4,5])}]
 
-    model = GridSearchCV(SVC(), configSVM)
+    model = GridSearchCV(SVC(probability = True), configSVM)
  
     print("[SVM] Treinando modelo...")
     model.fit(x, y)
@@ -261,7 +262,7 @@ def fitSVM(x, y):
 def predictSVM(svm, x, y, x_test):
     print("[SVM] Testando modelo...")
     yPredito = svm.predict(x_test)
-    return yPredito
+    return yPredito, svm.predict_proba(x_test)[:,1]
 
 # Função responsável por treinar o Random Forest e escolher os melhores hiperparâmetros por meio de grid-search
 def fitRF(x, y):
@@ -283,7 +284,7 @@ def fitRF(x, y):
 def predictRF(randomForest, x, y, x_test):
     print("[Random Forest] Testando modelo...")
     yPredito = randomForest.predict(x_test)
-    return yPredito
+    return yPredito, randomForest.predict_proba(x_test)[:,1]
 
 # Função responsável por treinar o Processo Gaussiano e escolher o melhor kernel por meio de grid-search
 def fitGP(x, y):
@@ -303,4 +304,4 @@ def fitGP(x, y):
 def predictGP(gpc, x, y, x_test):
     print("[Processo Gaussiano] Testando modelo...")
     yPredito = gpc.predict(x_test)
-    return yPredito
+    return yPredito, gpc.predict_proba(x_test)[:,1]
